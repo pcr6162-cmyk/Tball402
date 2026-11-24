@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>티볼 경기 기록지 (쓰리아웃제)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+        }
+        select, input {
+            font-family: inherit;
+        }
+        /* 저장 알림 깜빡임 */
+        .saved-flash {
+            animation: savedFlash 0.6s ease;
+        }
+        @keyframes savedFlash {
+            from { opacity: 0.3; }
+            to   { opacity: 1; }
+        }
+        /* 아웃 램프 점등 효과 */
+        .lamp-on {
+            background-color: #ef4444 !important;
+            box-shadow: 0 0 10px #ef4444;
+            border-color: #fca5a5 !important;
+        }
+        /* 인쇄 및 PDF 저장용 스타일 */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: inline-block !important;
+            }
+            body {
+                background-color: white !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .shadow-xl, .shadow-md, .shadow-sm, .shadow-inner {
+                box-shadow: none !important;
+            }
+            main > section {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            table {
+                font-size: 11px;
+            }
+            select {
+                appearance: none;
+                -webkit-appearance: none;
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                text-align: center;
+            }
+            @page {
+                margin: 10mm;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen p-2 sm:p-4 md:p-6">
+
+<!-- Tailwind CDN Safelist -->
+<div class="hidden" aria-hidden="true">
+    bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold
+    bg-slate-50 text-slate-600 border-slate-300
+    bg-white text-slate-700 border-slate-300
+    bg-white text-slate-400 border-slate-300
+    bg-amber-100 text-amber-800 border-amber-300
+    text-red-600 text-blue-600 text-slate-800 text-slate-400
+    bg-red-600 text-white bg-blue-600 text-white
+    bg-yellow-400 text-slate-950 bg-orange-500
+</div>
+
+<div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- 상단 헤더 및 컨트롤 바 -->
+    <header class="bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-slate-200 flex flex-col xl:flex-row justify-between items-center gap-4">
+        
+        <!-- 타이틀 & 쓰리아웃제 뱃지 -->
+        <div class="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left w-full xl:w-auto justify-between xl:justify-start">
+            <div class="flex items-center gap-3">
+                <div class="bg-red-600 text-white p-3 rounded-xl shadow-md">
+                    <i class="fa-solid fa-baseball-bat-ball text-2xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-2xl font-black text-slate-800 tracking-tight">티볼 경기 기록지</h1>
+                        <span class="bg-red-100 text-red-700 border border-red-300 px-2 py-0.5 rounded-lg text-xs font-black flex items-center gap-1 shadow-xs">
+                            <i class="fa-solid fa-bolt"></i> 쓰리아웃제 전용
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium">타자 일순 추가 타석 · 실시간 아웃 전광판 · 자동 집계</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상단 스코어 요약 & 실시간 아웃 전광판 -->
+        <div class="flex flex-col items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-inner min-w-[330px]">
+            <div class="flex items-center justify-between w-full gap-4">
+                <div class="text-center flex-1">
+                    <div class="flex items-center justify-center gap-1">
+                        <span class="summary-team1-badge text-[10px] font-black px-1.5 py-0.5 rounded bg-red-600 text-white">선공</span>
+                        <span class="summary-team1-name text-xs text-yellow-300 font-bold truncate max-w-[90px]">1팀 (노랑)</span>
+                    </div>
+                    <div class="summary-team1-score text-2xl font-black text-yellow-300">0</div>
+                </div>
+                <div class="text-lg font-black text-slate-500">VS</div>
+                <div class="text-center flex-1">
+                    <div class="flex items-center justify-center gap-1">
+                        <span class="summary-team2-badge text-[10px] font-black px-1.5 py-0.5 rounded bg-blue-600 text-white">후공</span>
+                        <span class="summary-team2-name text-xs text-orange-400 font-bold truncate max-w-[90px]">2팀 (주황)</span>
+                    </div>
+                    <div class="summary-team2-score text-2xl font-black text-orange-400">0</div>
+                </div>
+            </div>
+
+            <div class="leader-text text-[11px] font-bold text-slate-400">경기 시작 전</div>
+
+            <!-- 실시간 아웃 카운트 전광판 -->
+            <div class="w-full pt-2 border-t border-slate-800 flex flex-col items-center gap-1.5">
+                <div class="flex items-center justify-between w-full text-xs">
+                    <div class="flex items-center gap-1 text-slate-300 text-[11px]">
+                        <span class="text-slate-400">공격:</span>
+                        <select class="active-inning-select no-print bg-slate-800 text-yellow-300 font-bold text-[11px] px-2 py-0.5 rounded border border-slate-700 focus:outline-none focus:ring-1 focus:ring-yellow-400">
+                            <!-- JS 동적 생성 -->
+                        </select>
+                        <span class="active-inning-print hidden print-only font-bold text-yellow-300"></span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-black text-red-400 tracking-wider text-[11px]">OUT</span>
+                        <div class="flex items-center gap-1">
+                            <span class="out-lamp-1 w-3.5 h-3.5 rounded-full bg-slate-700 border border-slate-600 transition-all"></span>
+                            <span class="out-lamp-2 w-3.5 h-3.5 rounded-full bg-slate-700 border border-slate-600 transition-all"></span>
+                            <span class="out-lamp-3 w-3.5 h-3.5 rounded-full bg-slate-700 border border-slate-600 transition-all"></span>
+                        </div>
+                        <span class="out-count-display font-extrabold text-[11px] text-slate-300 w-9 text-right">0아웃</span>
+                    </div>
+                </div>
+                <div class="out-change-banner hidden w-full text-center py-0.5 px-2 bg-red-600/90 text-white font-black text-[11px] rounded-lg animate-pulse shadow-sm">
+                    ⚡ 3아웃! 공수 교대 시점입니다
+                </div>
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="flex items-center gap-2 flex-wrap justify-center no-print">
+            <button id="btn-swap-roles" type="button" class="px-3 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs sm:text-sm font-bold rounded-xl shadow-sm transition flex items-center gap-1.5" title="1팀과 2팀의 선공/후공을 맞바꿉니다">
+                <i class="fa-solid fa-arrows-rotate"></i> 선공/후공 전환
+            </button>
+            <button id="btn-add-inning" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition flex items-center gap-1.5">
+                <i class="fa-solid fa-plus"></i> 이닝 추가 (<span id="btn-inning-count">3</span>회)
+            </button>
+            <button id="btn-remove-inning" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-600 text-xs sm:text-sm font-bold rounded-xl transition flex items-center gap-1.5">
+                <i class="fa-solid fa-minus"></i> 이닝 삭제
+            </button>
+            <button id="btn-print" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition flex items-center gap-1.5">
+                <i class="fa-solid fa-print"></i> 인쇄 / PDF
+            </button>
+            <button id="btn-reset" class="px-3 py-2 bg-white hover:bg-red-50 text-red-600 border border-red-200 text-xs sm:text-sm font-bold rounded-xl transition flex items-center gap-1.5">
+                <i class="fa-solid fa-rotate-left"></i> 초기화
+            </button>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="space-y-6">
+
+        <!-- 1팀 기록 섹션 (노랑) -->
+        <section class="bg-white rounded-2xl shadow-md border-2 border-yellow-400 overflow-hidden">
+            <!-- 팀 타이틀 바 -->
+            <div class="bg-yellow-300 text-slate-900 p-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
+                <div class="flex items-center gap-2 w-full lg:w-auto">
+                    <!-- 선공/후공 배지 버튼 -->
+                    <button id="team1-role-btn" type="button" title="클릭하여 선공/후공을 변경할 수 있습니다"
+                            class="no-print text-xs px-2.5 py-1 rounded-full font-extrabold uppercase shrink-0 transition shadow-sm flex items-center gap-1 cursor-pointer">
+                    </button>
+                    <span id="team1-role-print" class="hidden print-only text-xs px-2.5 py-1 rounded-full font-extrabold uppercase shrink-0"></span>
+                    
+                    <input type="text" id="team1-name-input" aria-label="1팀 이름" value="1팀 (노랑)" maxlength="20"
+                           class="bg-yellow-200 text-slate-900 font-bold text-lg px-2 py-1 rounded border border-yellow-400 focus:outline-none focus:ring-2 focus:ring-slate-900 w-48">
+                </div>
+                <!-- 팀 요약 -->
+                <div class="flex items-center gap-2 bg-yellow-400/90 text-slate-900 px-4 py-1.5 rounded-xl border border-yellow-500 text-xs sm:text-sm overflow-x-auto max-w-full font-semibold">
+                    <span class="font-black shrink-0">합계: <span id="team1-total-score" class="text-slate-950 text-base font-black">0</span>점</span>
+                    <span class="text-yellow-700 mx-1">|</span>
+                    <span class="shrink-0">안타 <strong id="team1-hits" class="text-slate-950">0</strong></span>
+                    <span class="text-yellow-700 mx-1">|</span>
+                    <span class="shrink-0">팀 타율 <strong id="team1-team-avg" class="text-slate-950">.000</strong></span>
+                </div>
+            </div>
+
+            <!-- 1팀 테이블 -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[860px]">
+                    <thead>
+                        <tr id="team1-header-row1" class="bg-slate-50 text-slate-600 text-xs uppercase font-bold border-b border-slate-200">
+                            <!-- JS 동적 생성 -->
+                        </tr>
+                        <tr id="team1-header-row2" class="bg-slate-100/70 text-[11px] text-slate-500 font-semibold border-b border-slate-200 text-center">
+                            <!-- JS 동적 생성 -->
+                        </tr>
+                    </thead>
+                    <tbody id="team1-tbody" class="divide-y divide-slate-200 text-sm">
+                        <!-- JS 동적 생성 -->
+                    </tbody>
+                    <tfoot id="team1-tfoot">
+                        <!-- JS 동적 생성 -->
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 타자 관리 -->
+            <div class="no-print flex items-center justify-between gap-2 px-4 py-2.5 bg-yellow-50 border-t border-yellow-200">
+                <div class="flex items-center gap-2">
+                    <button data-add-player="team1" class="px-2.5 py-1.5 bg-white hover:bg-yellow-100 text-yellow-800 border border-yellow-300 text-xs font-bold rounded-lg transition">
+                        <i class="fa-solid fa-user-plus mr-1"></i>타자 추가
+                    </button>
+                    <button data-remove-player="team1" class="px-2.5 py-1.5 bg-white hover:bg-yellow-100 text-slate-600 border border-slate-300 text-xs font-bold rounded-lg transition">
+                        <i class="fa-solid fa-user-minus mr-1"></i>타자 삭제
+                    </button>
+                </div>
+                <span class="text-xs text-slate-500">등록 타자 <strong id="team1-player-count">7</strong>명</span>
+            </div>
+        </section>
+
+        <!-- 🌟 [중간 전광판] 노란 표와 주황 표 사이 실시간 전광판 🌟 -->
+        <div class="flex justify-center items-center py-2 no-print">
+            <div class="flex flex-col items-center gap-2 bg-slate-900 text-white px-6 sm:px-8 py-3.5 rounded-2xl shadow-xl border border-slate-700/80 w-full max-w-lg">
+                <div class="flex items-center justify-between w-full gap-4">
+                    <div class="text-center flex-1">
+                        <div class="flex items-center justify-center gap-1">
+                            <span class="summary-team1-badge text-[10px] font-black px-1.5 py-0.5 rounded bg-red-600 text-white">선공</span>
+                            <span class="summary-team1-name text-xs text-yellow-300 font-bold truncate max-w-[110px]">1팀 (노랑)</span>
+                        </div>
+                        <div class="summary-team1-score text-3xl font-black text-yellow-300">0</div>
+                    </div>
+                    <div class="text-xl font-black text-slate-500">VS</div>
+                    <div class="text-center flex-1">
+                        <div class="flex items-center justify-center gap-1">
+                            <span class="summary-team2-badge text-[10px] font-black px-1.5 py-0.5 rounded bg-blue-600 text-white">후공</span>
+                            <span class="summary-team2-name text-xs text-orange-400 font-bold truncate max-w-[110px]">2팀 (주황)</span>
+                        </div>
+                        <div class="summary-team2-score text-3xl font-black text-orange-400">0</div>
+                    </div>
+                </div>
+
+                <div class="leader-text text-xs font-bold text-slate-400">경기 시작 전</div>
+
+                <!-- 실시간 아웃 카운트 전광판 -->
+                <div class="w-full pt-2 border-t border-slate-800 flex flex-col items-center gap-1.5">
+                    <div class="flex items-center justify-between w-full text-xs">
+                        <div class="flex items-center gap-1 text-slate-300 text-[11px]">
+                            <span class="text-slate-400">공격:</span>
+                            <select class="active-inning-select bg-slate-800 text-yellow-300 font-bold text-[11px] px-2 py-0.5 rounded border border-slate-700 focus:outline-none focus:ring-1 focus:ring-yellow-400">
+                                <!-- JS 동적 생성 -->
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-black text-red-400 tracking-wider text-[11px]">OUT</span>
+                            <div class="flex items-center gap-1">
+                                <span class="out-lamp-1 w-3.5 h-3.5 rounded-full bg-slate-700 border border-slate-600 transition-all"></span>
+                                <span class="out-lamp-2 w-3.5 h-3.5 rounded-full bg-slate-700 border border-slate-600 transition-all"></span>
+                                <span class="out-lamp-3 w-3.5 h-3.5 rounded-full bg-slate-700 border border-slate-600 transition-all"></span>
+                            </div>
+                            <span class="out-count-display font-extrabold text-[11px] text-slate-300 w-9 text-right">0아웃</span>
+                        </div>
+                    </div>
+                    <div class="out-change-banner hidden w-full text-center py-0.5 px-2 bg-red-600/90 text-white font-black text-[11px] rounded-lg animate-pulse shadow-sm">
+                        ⚡ 3아웃! 공수 교대 시점입니다
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2팀 기록 섹션 (주황) -->
+        <section class="bg-white rounded-2xl shadow-md border-2 border-orange-400 overflow-hidden">
+            <!-- 팀 타이틀 바 -->
+            <div class="bg-orange-500 text-white p-4 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
+                <div class="flex items-center gap-2 w-full lg:w-auto">
+                    <!-- 선공/후공 배지 버튼 -->
+                    <button id="team2-role-btn" type="button" title="클릭하여 선공/후공을 변경할 수 있습니다"
+                            class="no-print text-xs px-2.5 py-1 rounded-full font-extrabold uppercase shrink-0 transition shadow-sm flex items-center gap-1 cursor-pointer">
+                    </button>
+                    <span id="team2-role-print" class="hidden print-only text-xs px-2.5 py-1 rounded-full font-extrabold uppercase shrink-0"></span>
+
+                    <input type="text" id="team2-name-input" aria-label="2팀 이름" value="2팀 (주황)" maxlength="20"
+                           class="bg-orange-600 text-white font-bold text-lg px-2 py-1 rounded border border-orange-400 focus:outline-none focus:ring-2 focus:ring-white w-48">
+                </div>
+                <!-- 팀 요약 -->
+                <div class="flex items-center gap-2 bg-orange-600/90 text-white px-4 py-1.5 rounded-xl border border-orange-400 text-xs sm:text-sm overflow-x-auto max-w-full font-semibold">
+                    <span class="font-black shrink-0">합계: <span id="team2-total-score" class="text-yellow-300 text-base font-black">0</span>점</span>
+                    <span class="text-orange-200 mx-1">|</span>
+                    <span class="shrink-0">안타 <strong id="team2-hits" class="text-yellow-300">0</strong></span>
+                    <span class="text-orange-200 mx-1">|</span>
+                    <span class="shrink-0">팀 타율 <strong id="team2-team-avg" class="text-yellow-300">.000</strong></span>
+                </div>
+            </div>
+
+            <!-- 2팀 테이블 -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[860px]">
+                    <thead>
+                        <tr id="team2-header-row1" class="bg-slate-50 text-slate-600 text-xs uppercase font-bold border-b border-slate-200">
+                            <!-- JS 동적 생성 -->
+                        </tr>
+                        <tr id="team2-header-row2" class="bg-slate-100/70 text-[11px] text-slate-500 font-semibold border-b border-slate-200 text-center">
+                            <!-- JS 동적 생성 -->
+                        </tr>
+                    </thead>
+                    <tbody id="team2-tbody" class="divide-y divide-slate-200 text-sm">
+                        <!-- JS 동적 생성 -->
+                    </tbody>
+                    <tfoot id="team2-tfoot">
+                        <!-- JS 동적 생성 -->
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 타자 관리 -->
+            <div class="no-print flex items-center justify-between gap-2 px-4 py-2.5 bg-orange-50 border-t border-orange-200">
+                <div class="flex items-center gap-2">
+                    <button data-add-player="team2" class="px-2.5 py-1.5 bg-white hover:bg-orange-100 text-orange-800 border border-orange-300 text-xs font-bold rounded-lg transition">
+                        <i class="fa-solid fa-user-plus mr-1"></i>타자 추가
+                    </button>
+                    <button data-remove-player="team2" class="px-2.5 py-1.5 bg-white hover:bg-orange-100 text-slate-600 border border-slate-300 text-xs font-bold rounded-lg transition">
+                        <i class="fa-solid fa-user-minus mr-1"></i>타자 삭제
+                    </button>
+                </div>
+                <span class="text-xs text-slate-500">등록 타자 <strong id="team2-player-count">7</strong>명</span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 푸터: 저장 상태 및 안내 -->
+    <footer class="text-center text-xs text-slate-400 pb-4 space-y-1">
+        <p>💡 <strong>쓰리아웃제 팁:</strong> 1~7번 타자가 모두 돌아도 3아웃이 아니면 각 칸의 <strong>[+ 타석 추가]</strong>를 눌러 같은 이닝에 2번 이상 기록하세요.</p>
+        <p>모든 기록은 이 브라우저에 자동 저장되며, 새로고침해도 유지됩니다.</p>
+        <p id="save-status" class="font-medium text-slate-400">아직 저장된 기록이 없습니다.</p>
+    </footer>
+
+</div>
+
+<!-- JavaScript 로직 -->
+<script>
+    const STORAGE_KEY = 'tball-scorecard.threeout.v1';
+    const MAX_INNINGS = 9;
+    const MAX_PLAYERS = 15;
+
+    // 타구 결과 옵션
+    const RESULT_OPTIONS = [
+        { value: '',             label: '- 선택 -',        kind: 'empty' },
+        { value: '1루타',         label: '1루타 (안타)',    kind: 'hit' },
+        { value: '2루타',         label: '2루타 (안타)',    kind: 'hit' },
+        { value: '파울 넷 아웃',    label: '파울 넷 아웃',    kind: 'out' },
+        { value: '플라이 아웃',     label: '플라이 아웃',     kind: 'out' }
+    ];
+
+    const RESULT_MAP = RESULT_OPTIONS.reduce((map, opt) => {
+        map[opt.value] = {
+            atBat: opt.kind === 'hit' || opt.kind === 'out',
+            hit: opt.kind === 'hit',
+            kind: opt.kind
+        };
+        return map;
+    }, {});
+
+    // 득점 옵션
+    const SCORE_OPTIONS = [
+        { value: 'x', label: 'X' },
+        { value: 'o', label: 'O 득점' }
+    ];
+
+    // 스타일 클래스
+    const RESULT_BASE = 'w-full text-xs p-1 rounded-lg border transition focus:ring-2 focus:ring-indigo-500 focus:outline-none';
+    const RESULT_STYLES = {
+        hit:   'bg-emerald-50 text-emerald-700 font-semibold border-emerald-300',
+        out:   'bg-slate-50 text-slate-600 border-slate-300',
+        empty: 'bg-white text-slate-700 border-slate-300'
+    };
+    const SCORE_BASE = 'w-full text-xs p-1 rounded-lg border text-center font-bold transition focus:ring-2 focus:ring-indigo-500 focus:outline-none';
+    const SCORE_STYLES = {
+        o: 'bg-amber-100 text-amber-800 border-amber-300',
+        x: 'bg-white text-slate-400 border-slate-300'
+    };
+
+    const TEAM_KEYS = ['team1', 'team2'];
+    const DEFAULT_INNINGS = 3;
+    const DEFAULT_PLAYERS = 7;
+
+    // ── 상태 ──────────────────────────────────────────────
+    let state = createDefaultState();
+
+    function makeAtBat(result = '', score = 'x') {
+        return { result, score };
+    }
+
+    function makePlayer(name, inningsCount) {
+        return {
+            name,
+            innings: Array.from({ length: inningsCount }, () => [makeAtBat()])
+        };
+    }
+
+    function createDefaultState() {
+        return {
+            team1Name: '1팀 (노랑)',
+            team2Name: '2팀 (주황)',
+            team1Role: 'first',    // 'first' (선공 / 초) | 'second' (후공 / 말)
+            team2Role: 'second',
+            totalInnings: DEFAULT_INNINGS,
+            activeInningKey: 'team1-0', // 전광판 기준 이닝
+            team1: Array.from({ length: DEFAULT_PLAYERS }, (_, i) => makePlayer(`1팀 타자 ${i + 1}`, DEFAULT_INNINGS)),
+            team2: Array.from({ length: DEFAULT_PLAYERS }, (_, i) => makePlayer(`2팀 타자 ${i + 1}`, DEFAULT_INNINGS))
+        };
+    }
+
+    // ── 저장 / 복원 ────────────────────────────────────────
+    function save() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            setSaveStatus();
+        } catch (err) {
+            console.warn('기록 저장에 실패했습니다.', err);
+            const el = document.getElementById('save-status');
+            if (el) el.textContent = '저장 실패: 브라우저 저장 공간을 사용할 수 없습니다.';
+        }
+    }
+
+    function setSaveStatus(prefix = '저장됨') {
+        const el = document.getElementById('save-status');
+        if (!el) return;
+        el.textContent = `${prefix} · ${new Date().toLocaleTimeString('ko-KR')}`;
+        el.classList.remove('saved-flash');
+        void el.offsetWidth;
+        el.classList.add('saved-flash');
+    }
+
+    function loadState() {
+        let raw = null;
+        try {
+            raw = localStorage.getItem(STORAGE_KEY);
+        } catch (err) {
+            return null;
+        }
+        if (!raw) return null;
+
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (err) {
+            return null;
+        }
+        if (!data || typeof data !== 'object') return null;
+
+        const clampInnings = (value) => {
+            const n = Number(value);
+            if (!Number.isFinite(n)) return DEFAULT_INNINGS;
+            return Math.min(MAX_INNINGS, Math.max(1, Math.round(n)));
+        };
+        const totalInnings = clampInnings(data.totalInnings);
+
+        const normalizeTeam = (rawTeam, prefix) => {
+            if (!Array.isArray(rawTeam)) return [];
+            return rawTeam.slice(0, MAX_PLAYERS).map((rawPlayer, idx) => {
+                const player = rawPlayer && typeof rawPlayer === 'object' ? rawPlayer : {};
+                const name = typeof player.name === 'string' && player.name.trim()
+                    ? player.name
+                    : `${prefix} ${idx + 1}`;
+                const rawInnings = Array.isArray(player.innings) ? player.innings : [];
+                const innings = Array.from({ length: totalInnings }, (_, i) => {
+                    const src = rawInnings[i];
+                    if (Array.isArray(src)) {
+                        const list = src.map(ab => ({
+                            result: Object.prototype.hasOwnProperty.call(RESULT_MAP, ab?.result) ? ab.result : '',
+                            score: ab?.score === 'o' ? 'o' : 'x'
+                        }));
+                        return list.length ? list : [makeAtBat()];
+                    } else if (src && typeof src === 'object') {
+                        return [{
+                            result: Object.prototype.hasOwnProperty.call(RESULT_MAP, src.result) ? src.result : '',
+                            score: src.score === 'o' ? 'o' : 'x'
+                        }];
+                    }
+                    return [makeAtBat()];
+                });
+                return { name, innings };
+            });
+        };
+
+        const team1 = normalizeTeam(data.team1, '1팀 타자');
+        const team2 = normalizeTeam(data.team2, '2팀 타자');
+        if (!team1.length || !team2.length) return null;
+
+        const team1Role = data.team1Role === 'second' ? 'second' : 'first';
+        const team2Role = team1Role === 'first' ? 'second' : 'first';
+
+        return {
+            team1Name: typeof data.team1Name === 'string' && data.team1Name ? data.team1Name : '1팀 (노랑)',
+            team2Name: typeof data.team2Name === 'string' && data.team2Name ? data.team2Name : '2팀 (주황)',
+            team1Role,
+            team2Role,
+            totalInnings,
+            activeInningKey: typeof data.activeInningKey === 'string' ? data.activeInningKey : 'team1-0',
+            team1,
+            team2
+        };
+    }
+
+    // ── 렌더링 ────────────────────────────────────────────
+    function renderAll() {
+        document.getElementById('team1-name-input').value = state.team1Name;
+        document.getElementById('team2-name-input').value = state.team2Name;
+
+        updateRoleUI();
+        updateActiveInningOptions();
+
+        TEAM_KEYS.forEach((teamKey) => {
+            renderHeaders(teamKey);
+            renderTable(teamKey);
+            renderFooter(teamKey);
+        });
+
+        updateTeamNames();
+        updateInningControls();
+        updatePlayerCounts();
+        applyTableWidths();
+        calculateAll();
+    }
+
+    function applyTableWidths() {
+        const minWidth = 330 + state.totalInnings * 210;
+        document.querySelectorAll('main table').forEach((table) => {
+            table.style.minWidth = `${minWidth}px`;
+        });
+    }
+
+    // 선공/후공 UI 갱신 (상단 및 중간 전광판 모두 동기화)
+    function updateRoleUI() {
+        const t1Role = state.team1Role;
+        const t2Role = state.team2Role;
+
+        const t1Btn = document.getElementById('team1-role-btn');
+        const t1Print = document.getElementById('team1-role-print');
+        const t2Btn = document.getElementById('team2-role-btn');
+        const t2Print = document.getElementById('team2-role-print');
+
+        const badges1 = document.querySelectorAll('.summary-team1-badge');
+        const badges2 = document.querySelectorAll('.summary-team2-badge');
+
+        if (t1Role === 'first') {
+            t1Btn.className = 'no-print text-xs px-2.5 py-1 rounded-full font-black uppercase shrink-0 transition shadow-sm flex items-center gap-1 cursor-pointer bg-red-600 text-white hover:bg-red-700';
+            t1Btn.innerHTML = '<i class="fa-solid fa-arrows-rotate text-[10px]"></i> 선공 (초 공격)';
+            t1Print.className = 'hidden print-only text-xs px-2 py-0.5 rounded-full font-black uppercase shrink-0 bg-red-600 text-white';
+            t1Print.textContent = '선공 (초 공격)';
+            badges1.forEach(b => {
+                b.textContent = '선공';
+                b.className = 'summary-team1-badge text-[10px] font-black px-1.5 py-0.5 rounded bg-red-600 text-white';
+            });
+
+            t2Btn.className = 'no-print text-xs px-2.5 py-1 rounded-full font-black uppercase shrink-0 transition shadow-sm flex items-center gap-1 cursor-pointer bg-blue-600 text-white hover:bg-blue-700';
+            t2Btn.innerHTML = '<i class="fa-solid fa-arrows-rotate text-[10px]"></i> 후공 (말 공격)';
+            t2Print.className = 'hidden print-only text-xs px-2 py-0.5 rounded-full font-black uppercase shrink-0 bg-blue-600 text-white';
+            t2Print.textContent = '후공 (말 공격)';
+            badges2.forEach(b => {
+                b.textContent = '후공';
+                b.className = 'summary-team2-badge text-[10px] font-black px-1.5 py-0.5 rounded bg-blue-600 text-white';
+            });
+        } else {
+            t1Btn.className = 'no-print text-xs px-2.5 py-1 rounded-full font-black uppercase shrink-0 transition shadow-sm flex items-center gap-1 cursor-pointer bg-blue-600 text-white hover:bg-blue-700';
+            t1Btn.innerHTML = '<i class="fa-solid fa-arrows-rotate text-[10px]"></i> 후공 (말 공격)';
+            t1Print.className = 'hidden print-only text-xs px-2 py-0.5 rounded-full font-black uppercase shrink-0 bg-blue-600 text-white';
+            t1Print.textContent = '후공 (말 공격)';
+            badges1.forEach(b => {
+                b.textContent = '후공';
+                b.className = 'summary-team1-badge text-[10px] font-black px-1.5 py-0.5 rounded bg-blue-600 text-white';
+            });
+
+            t2Btn.className = 'no-print text-xs px-2.5 py-1 rounded-full font-black uppercase shrink-0 transition shadow-sm flex items-center gap-1 cursor-pointer bg-red-600 text-white hover:bg-red-700';
+            t2Btn.innerHTML = '<i class="fa-solid fa-arrows-rotate text-[10px]"></i> 선공 (초 공격)';
+            t2Print.className = 'hidden print-only text-xs px-2 py-0.5 rounded-full font-black uppercase shrink-0 bg-red-600 text-white';
+            t2Print.textContent = '선공 (초 공격)';
+            badges2.forEach(b => {
+                b.textContent = '선공';
+                b.className = 'summary-team2-badge text-[10px] font-black px-1.5 py-0.5 rounded bg-red-600 text-white';
+            });
+        }
+    }
+
+    // 전광판 공격 이닝 드롭다운 생성 (상단 및 중간 모두 동기화)
+    function updateActiveInningOptions() {
+        const selects = document.querySelectorAll('.active-inning-select');
+        const printEls = document.querySelectorAll('.active-inning-print');
+        if (!selects.length) return;
+
+        const currentVal = state.activeInningKey;
+
+        selects.forEach(select => {
+            select.innerHTML = '';
+            for (let i = 0; i < state.totalInnings; i++) {
+                const firstTeamKey = state.team1Role === 'first' ? 'team1' : 'team2';
+                const secondTeamKey = state.team1Role === 'first' ? 'team2' : 'team1';
+                const firstTeamName = state[`${firstTeamKey}Name`] || (firstTeamKey === 'team1' ? '1팀' : '2팀');
+                const secondTeamName = state[`${secondTeamKey}Name`] || (secondTeamKey === 'team1' ? '1팀' : '2팀');
+
+                const opt1 = document.createElement('option');
+                opt1.value = `${firstTeamKey}-${i}`;
+                opt1.textContent = `${i + 1}회초 (${firstTeamName})`;
+                select.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = `${secondTeamKey}-${i}`;
+                opt2.textContent = `${i + 1}회말 (${secondTeamName})`;
+                select.appendChild(opt2);
+            }
+
+            const exists = Array.from(select.options).some(o => o.value === currentVal);
+            if (exists) {
+                select.value = currentVal;
+            } else {
+                select.value = select.options[0]?.value || 'team1-0';
+                state.activeInningKey = select.value;
+            }
+
+            printEls.forEach(p => {
+                if (select.selectedOptions[0]) p.textContent = select.selectedOptions[0].textContent;
+            });
+        });
+    }
+
+    // 테이블 헤더 생성
+    function renderHeaders(teamKey) {
+        const row1 = document.getElementById(`${teamKey}-header-row1`);
+        const row2 = document.getElementById(`${teamKey}-header-row2`);
+        const isFirst = state[`${teamKey}Role`] === 'first';
+        const roleLabel = isFirst ? '초' : '말';
+
+        let r1Html = `<th scope="col" class="p-3 text-center w-14 whitespace-nowrap">타순</th><th scope="col" class="p-3 w-36 whitespace-nowrap">선수명</th>`;
+        let r2Html = `<th></th><th></th>`;
+
+        for (let i = 1; i <= state.totalInnings; i++) {
+            const bgStyle = teamKey === 'team1'
+                ? (i % 2 === 1 ? 'bg-yellow-100/70' : 'bg-yellow-50')
+                : (i % 2 === 1 ? 'bg-orange-100/60' : 'bg-orange-50/50');
+            r1Html += `<th scope="col" class="p-2.5 text-center ${bgStyle} border-x border-slate-200" colspan="2">
+                <span class="font-extrabold text-slate-800">${i}회${roleLabel} 공격</span>
+            </th>`;
+            r2Html += `
+                <th scope="col" class="py-1 border-l border-slate-200 w-36 whitespace-nowrap text-center">타구 결과</th>
+                <th scope="col" class="py-1 border-r border-slate-200 w-24 whitespace-nowrap text-center">득점</th>
+            `;
+        }
+
+        r1Html += `<th scope="col" class="p-3 text-center w-28 bg-slate-100 whitespace-nowrap">개인 타율</th>`;
+        r2Html += `<th scope="col" class="bg-slate-100 text-center">안타/타수</th>`;
+
+        row1.innerHTML = r1Html;
+        row2.innerHTML = r2Html;
+    }
+
+    function applyResultStyle(selectEl, value) {
+        const kind = (RESULT_MAP[value] && RESULT_MAP[value].kind) || 'empty';
+        selectEl.className = `${RESULT_BASE} ${RESULT_STYLES[kind] || RESULT_STYLES.empty}`;
+    }
+
+    function applyScoreStyle(selectEl, value) {
+        selectEl.className = `${SCORE_BASE} ${SCORE_STYLES[value] || SCORE_STYLES.x}`;
+    }
+
+    // 테이블 데이터 동적 출력
+    function renderTable(teamKey) {
+        const tbody = document.getElementById(`${teamKey}-tbody`);
+        const frag = document.createDocumentFragment();
+
+        state[teamKey].forEach((player, pIdx) => {
+            const tr = document.createElement('tr');
+            tr.className = pIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+
+            // 타순
+            const tdOrder = document.createElement('td');
+            tdOrder.className = 'p-3 text-center font-bold text-slate-500';
+            tdOrder.textContent = pIdx + 1;
+            tr.appendChild(tdOrder);
+
+            // 선수 이름
+            const tdName = document.createElement('td');
+            tdName.className = 'p-2';
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.value = player.name;
+            nameInput.maxLength = 20;
+            nameInput.setAttribute('aria-label', `${pIdx + 1}번 타자 이름`);
+            nameInput.className = 'w-full bg-transparent font-medium border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:bg-white focus:outline-none px-1 py-0.5 rounded transition text-slate-800';
+            nameInput.addEventListener('input', () => {
+                player.name = nameInput.value;
+                save();
+            });
+            tdName.appendChild(nameInput);
+            tr.appendChild(tdName);
+
+            // 이닝별 타석들
+            for (let i = 0; i < state.totalInnings; i++) {
+                const atBats = player.innings[i];
+
+                const tdResult = document.createElement('td');
+                tdResult.className = 'p-1.5 border-l border-slate-200 align-top';
+
+                const tdScore = document.createElement('td');
+                tdScore.className = 'p-1.5 border-r border-slate-200 text-center align-top';
+
+                const resultWrap = document.createElement('div');
+                resultWrap.className = 'space-y-1.5';
+
+                const scoreWrap = document.createElement('div');
+                scoreWrap.className = 'space-y-1.5';
+
+                atBats.forEach((ab, abIdx) => {
+                    const rRow = document.createElement('div');
+                    rRow.className = 'flex items-center gap-1';
+
+                    if (atBats.length > 1) {
+                        const tag = document.createElement('span');
+                        tag.className = 'text-[10px] font-bold text-slate-400 shrink-0 w-5';
+                        tag.textContent = `${abIdx + 1}차`;
+                        rRow.appendChild(tag);
+                    }
+
+                    const resultSelect = document.createElement('select');
+                    resultSelect.setAttribute('aria-label', `${pIdx + 1}번 타자 ${i + 1}회 ${abIdx + 1}차 타구 결과`);
+                    RESULT_OPTIONS.forEach((opt) => {
+                        const option = document.createElement('option');
+                        option.value = opt.value;
+                        option.textContent = opt.label;
+                        resultSelect.appendChild(option);
+                    });
+                    resultSelect.value = ab.result;
+                    applyResultStyle(resultSelect, ab.result);
+
+                    resultSelect.addEventListener('change', () => {
+                        ab.result = resultSelect.value;
+                        applyResultStyle(resultSelect, ab.result);
+                        state.activeInningKey = `${teamKey}-${i}`;
+                        document.querySelectorAll('.active-inning-select').forEach(sel => sel.value = state.activeInningKey);
+                        calculateAll();
+                        save();
+                    });
+                    rRow.appendChild(resultSelect);
+                    resultWrap.appendChild(rRow);
+
+                    // 득점 행
+                    const sRow = document.createElement('div');
+                    sRow.className = 'flex items-center gap-1';
+
+                    const scoreSelect = document.createElement('select');
+                    scoreSelect.setAttribute('aria-label', `${pIdx + 1}번 타자 ${i + 1}회 ${abIdx + 1}차 득점 여부`);
+                    SCORE_OPTIONS.forEach((opt) => {
+                        const option = document.createElement('option');
+                        option.value = opt.value;
+                        option.textContent = opt.label;
+                        scoreSelect.appendChild(option);
+                    });
+                    scoreSelect.value = ab.score;
+                    applyScoreStyle(scoreSelect, ab.score);
+
+                    scoreSelect.addEventListener('change', () => {
+                        ab.score = scoreSelect.value;
+                        applyScoreStyle(scoreSelect, ab.score);
+                        state.activeInningKey = `${teamKey}-${i}`;
+                        document.querySelectorAll('.active-inning-select').forEach(sel => sel.value = state.activeInningKey);
+                        calculateAll();
+                        save();
+                    });
+                    sRow.appendChild(scoreSelect);
+
+                    if (atBats.length > 1) {
+                        const delBtn = document.createElement('button');
+                        delBtn.type = 'button';
+                        delBtn.title = '이 타석 삭제';
+                        delBtn.className = 'no-print text-slate-400 hover:text-red-600 text-xs px-1 py-0.5 rounded hover:bg-red-50 transition';
+                        delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                        delBtn.addEventListener('click', () => {
+                            atBats.splice(abIdx, 1);
+                            renderTable(teamKey);
+                            calculateAll();
+                            save();
+                        });
+                        sRow.appendChild(delBtn);
+                    }
+
+                    scoreWrap.appendChild(sRow);
+                });
+
+                // 추가 타석(+) 버튼
+                const addAtBatBtn = document.createElement('button');
+                addAtBatBtn.type = 'button';
+                addAtBatBtn.className = 'no-print text-[10px] text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-1.5 py-0.5 rounded transition flex items-center gap-1 mt-1';
+                addAtBatBtn.innerHTML = '<i class="fa-solid fa-plus text-[8px]"></i>타석 추가';
+                addAtBatBtn.title = '1~7번 타자가 모두 돌았으나 3아웃이 안 된 경우 추가 타석을 기록합니다';
+                addAtBatBtn.addEventListener('click', () => {
+                    atBats.push(makeAtBat());
+                    state.activeInningKey = `${teamKey}-${i}`;
+                    document.querySelectorAll('.active-inning-select').forEach(sel => sel.value = state.activeInningKey);
+                    renderTable(teamKey);
+                    calculateAll();
+                    save();
+                });
+
+                resultWrap.appendChild(addAtBatBtn);
+
+                tdResult.appendChild(resultWrap);
+                tdScore.appendChild(scoreWrap);
+
+                tr.appendChild(tdResult);
+                tr.appendChild(tdScore);
+            }
+
+            // 개인 타율 출력 칸
+            const tdAvg = document.createElement('td');
+            tdAvg.className = 'p-3 text-center bg-slate-100/60 font-medium align-middle';
+            const avgEl = document.createElement('div');
+            avgEl.id = `${teamKey}-p${pIdx}-avg`;
+            avgEl.className = 'font-bold text-slate-400 text-sm';
+            avgEl.textContent = '.000';
+            const detailEl = document.createElement('div');
+            detailEl.id = `${teamKey}-p${pIdx}-detail`;
+            detailEl.className = 'text-[10px] text-slate-400 font-normal';
+            detailEl.textContent = '0안타 / 0타수';
+            tdAvg.appendChild(avgEl);
+            tdAvg.appendChild(detailEl);
+            tr.appendChild(tdAvg);
+
+            frag.appendChild(tr);
+        });
+
+        tbody.replaceChildren(frag);
+    }
+
+    // 이닝별 득점 및 아웃 합계 (tfoot)
+    function renderFooter(teamKey) {
+        const tfoot = document.getElementById(`${teamKey}-tfoot`);
+        const tr = document.createElement('tr');
+        tr.className = 'bg-slate-50 border-t-2 border-slate-200 font-bold text-slate-700';
+
+        const th = document.createElement('th');
+        th.scope = 'row';
+        th.colSpan = 2;
+        th.className = 'p-2.5 text-center text-xs whitespace-nowrap';
+        th.textContent = '이닝 합계';
+        tr.appendChild(th);
+
+        for (let i = 1; i <= state.totalInnings; i++) {
+            const td = document.createElement('td');
+            td.colSpan = 2;
+            td.className = 'p-2 text-center border-x border-slate-200';
+
+            const wrap = document.createElement('div');
+            wrap.className = 'flex items-center justify-center gap-1.5 flex-wrap';
+
+            const runsSpan = document.createElement('span');
+            runsSpan.id = `${teamKey}-inning${i}-runs`;
+            runsSpan.className = teamKey === 'team1' ? 'text-yellow-700 font-black' : 'text-orange-600 font-black';
+            runsSpan.textContent = '0점';
+
+            const outsSpan = document.createElement('span');
+            outsSpan.id = `${teamKey}-inning${i}-outs`;
+            outsSpan.className = 'text-xs text-slate-500 font-semibold';
+            outsSpan.textContent = '(0아웃)';
+
+            wrap.appendChild(runsSpan);
+            wrap.appendChild(outsSpan);
+            td.appendChild(wrap);
+            tr.appendChild(td);
+        }
+
+        const tdTotal = document.createElement('td');
+        tdTotal.className = 'p-2.5 text-center bg-slate-100';
+        const totalSpan = document.createElement('span');
+        totalSpan.id = `${teamKey}-foot-total`;
+        totalSpan.className = 'text-slate-900 font-black';
+        totalSpan.textContent = '0';
+        tdTotal.append(totalSpan, document.createTextNode('점'));
+        tr.appendChild(tdTotal);
+
+        tfoot.replaceChildren(tr);
+    }
+
+    // ── 계산 ──────────────────────────────────────────────
+    function formatAvg(hits, atBats) {
+        if (!atBats) return '.000';
+        return (hits / atBats).toFixed(3).replace(/^0\./, '.');
+    }
+
+    function applyAvgStyle(el, hits, atBats) {
+        el.classList.remove('text-red-600', 'text-blue-600', 'text-slate-800', 'text-slate-400');
+        if (!atBats) {
+            el.classList.add('text-slate-400');
+        } else if (hits / atBats >= 0.5) {
+            el.classList.add('text-red-600');
+        } else if (hits / atBats >= 0.3) {
+            el.classList.add('text-blue-600');
+        } else {
+            el.classList.add('text-slate-800');
+        }
+    }
+
+    function calculateAll() {
+        const totals = {};
+        const teamInningOuts = { team1: [], team2: [] };
+
+        TEAM_KEYS.forEach((teamKey) => {
+            let teamRuns = 0;
+            let teamHits = 0;
+            let teamAtBats = 0;
+            const inningRuns = new Array(state.totalInnings).fill(0);
+            const inningOuts = new Array(state.totalInnings).fill(0);
+
+            state[teamKey].forEach((player, pIdx) => {
+                let pTotalHits = 0;
+                let pTotalAtBats = 0;
+
+                player.innings.forEach((atBats, innIdx) => {
+                    if (innIdx >= state.totalInnings) return;
+
+                    atBats.forEach((ab) => {
+                        const meta = RESULT_MAP[ab.result];
+                        if (meta && meta.atBat) {
+                            pTotalAtBats++;
+                            if (meta.hit) {
+                                pTotalHits++;
+                            } else if (meta.kind === 'out') {
+                                inningOuts[innIdx]++;
+                            }
+                        }
+                        if (ab.score === 'o') {
+                            inningRuns[innIdx]++;
+                            teamRuns++;
+                        }
+                    });
+                });
+
+                teamHits += pTotalHits;
+                teamAtBats += pTotalAtBats;
+
+                const avgEl = document.getElementById(`${teamKey}-p${pIdx}-avg`);
+                const detailEl = document.getElementById(`${teamKey}-p${pIdx}-detail`);
+                if (avgEl && detailEl) {
+                    avgEl.textContent = formatAvg(pTotalHits, pTotalAtBats);
+                    applyAvgStyle(avgEl, pTotalHits, pTotalAtBats);
+                    detailEl.textContent = `${pTotalHits}안타 / ${pTotalAtBats}타수`;
+                }
+            });
+
+            // 이닝별 득점 & 아웃 합계 (tfoot)
+            inningRuns.forEach((runs, idx) => {
+                const rEl = document.getElementById(`${teamKey}-inning${idx + 1}-runs`);
+                const oEl = document.getElementById(`${teamKey}-inning${idx + 1}-outs`);
+                const outs = inningOuts[idx];
+
+                if (rEl) rEl.textContent = `${runs}점`;
+                if (oEl) {
+                    if (outs >= 3) {
+                        oEl.className = 'text-[10px] font-black bg-red-100 text-red-700 border border-red-300 px-1.5 py-0.5 rounded';
+                        oEl.textContent = '3아웃 (교대)';
+                    } else {
+                        oEl.className = 'text-xs text-slate-500 font-semibold';
+                        oEl.textContent = `(${outs}아웃)`;
+                    }
+                }
+            });
+
+            teamInningOuts[teamKey] = inningOuts;
+
+            // 팀 통계
+            const totalEl = document.getElementById(`${teamKey}-total-score`);
+            const hitsEl = document.getElementById(`${teamKey}-hits`);
+            const teamAvgEl = document.getElementById(`${teamKey}-team-avg`);
+            const footTotalEl = document.getElementById(`${teamKey}-foot-total`);
+
+            if (totalEl) totalEl.textContent = teamRuns;
+            if (footTotalEl) footTotalEl.textContent = teamRuns;
+            if (hitsEl) hitsEl.textContent = teamHits;
+            if (teamAvgEl) teamAvgEl.textContent = formatAvg(teamHits, teamAtBats);
+
+            // 상단 및 중간 전광판 점수 동기화
+            document.querySelectorAll(`.summary-${teamKey}-score`).forEach(el => {
+                el.textContent = teamRuns;
+            });
+
+            totals[teamKey] = teamRuns;
+        });
+
+        updateLeader(totals.team1, totals.team2);
+        updateOutBoard(teamInningOuts);
+    }
+
+    // 실시간 아웃 전광판 갱신 (상단 및 중간 전광판 모두 동기화)
+    function updateOutBoard(teamInningOuts) {
+        const parts = (state.activeInningKey || 'team1-0').split('-');
+        const teamKey = parts[0] === 'team2' ? 'team2' : 'team1';
+        const innIdx = Math.max(0, parseInt(parts[1] || '0', 10));
+
+        const outs = (teamInningOuts && teamInningOuts[teamKey] && teamInningOuts[teamKey][innIdx]) || 0;
+
+        const lamps1 = document.querySelectorAll('.out-lamp-1');
+        const lamps2 = document.querySelectorAll('.out-lamp-2');
+        const lamps3 = document.querySelectorAll('.out-lamp-3');
+        const countTxts = document.querySelectorAll('.out-count-display');
+        const banners = document.querySelectorAll('.out-change-banner');
+
+        lamps1.forEach(l => l.classList.toggle('lamp-on', outs >= 1));
+        lamps2.forEach(l => l.classList.toggle('lamp-on', outs >= 2));
+        lamps3.forEach(l => l.classList.toggle('lamp-on', outs >= 3));
+
+        countTxts.forEach(el => {
+            el.textContent = `${outs}아웃`;
+            if (outs >= 3) {
+                el.className = 'out-count-display font-black text-[11px] text-red-400 w-9 text-right';
+            } else {
+                el.className = 'out-count-display font-extrabold text-[11px] text-slate-300 w-9 text-right';
+            }
+        });
+
+        banners.forEach(b => {
+            if (outs >= 3) {
+                b.classList.remove('hidden');
+            } else {
+                b.classList.add('hidden');
+            }
+        });
+    }
+
+    function updateLeader(score1, score2) {
+        const els = document.querySelectorAll('.leader-text');
+        if (!els.length) return;
+
+        const name1 = state.team1Name || '1팀';
+        const name2 = state.team2Name || '2팀';
+
+        let text = '동점';
+        let className = 'leader-text text-[11px] font-bold text-slate-400';
+
+        if (score1 === score2) {
+            text = score1 === 0 ? '경기 시작 전' : '동점';
+            className = 'leader-text text-[11px] font-bold text-slate-400';
+        } else if (score1 > score2) {
+            text = `${name1} 리드 (+${score1 - score2})`;
+            className = 'leader-text text-[11px] font-bold text-yellow-300';
+        } else {
+            text = `${name2} 리드 (+${score2 - score1})`;
+            className = 'leader-text text-[11px] font-bold text-orange-400';
+        }
+
+        els.forEach(el => {
+            el.textContent = text;
+            el.className = className;
+        });
+    }
+
+    // ── 팀명 / 컨트롤 ──────────────────────────────────────
+    function updateTeamNames() {
+        const t1 = state.team1Name.trim() || '1팀';
+        const t2 = state.team2Name.trim() || '2팀';
+
+        document.querySelectorAll('.summary-team1-name').forEach(el => el.textContent = t1);
+        document.querySelectorAll('.summary-team2-name').forEach(el => el.textContent = t2);
+
+        updateActiveInningOptions();
+        const total1 = Number(document.getElementById('team1-total-score').textContent) || 0;
+        const total2 = Number(document.getElementById('team2-total-score').textContent) || 0;
+        updateLeader(total1, total2);
+    }
+
+    function updateInningControls() {
+        document.getElementById('btn-inning-count').textContent = state.totalInnings;
+
+        const addBtn = document.getElementById('btn-add-inning');
+        const removeBtn = document.getElementById('btn-remove-inning');
+
+        addBtn.disabled = state.totalInnings >= MAX_INNINGS;
+        addBtn.title = addBtn.disabled ? `최대 ${MAX_INNINGS}회까지 추가할 수 있습니다.` : '이닝을 추가합니다.';
+        removeBtn.classList.toggle('hidden', state.totalInnings <= 1);
+    }
+
+    function updatePlayerCounts() {
+        TEAM_KEYS.forEach((teamKey) => {
+            const el = document.getElementById(`${teamKey}-player-count`);
+            if (el) el.textContent = state[teamKey].length;
+        });
+    }
+
+    // 선공/후공 전환
+    function swapRoles() {
+        state.team1Role = state.team1Role === 'first' ? 'second' : 'first';
+        state.team2Role = state.team1Role === 'first' ? 'second' : 'first';
+        updateRoleUI();
+        updateActiveInningOptions();
+        TEAM_KEYS.forEach((teamKey) => renderHeaders(teamKey));
+        calculateAll();
+        save();
+    }
+
+    // 이닝 추가
+    function addInning() {
+        if (state.totalInnings >= MAX_INNINGS) return;
+        state.totalInnings++;
+        TEAM_KEYS.forEach((teamKey) => {
+            state[teamKey].forEach((player) => {
+                player.innings.push([makeAtBat()]);
+            });
+        });
+        renderAll();
+        save();
+    }
+
+    // 이닝 삭제
+    function removeInning() {
+        if (state.totalInnings <= 1) return;
+        state.totalInnings--;
+        TEAM_KEYS.forEach((teamKey) => {
+            state[teamKey].forEach((player) => {
+                player.innings.pop();
+            });
+        });
+        renderAll();
+        save();
+    }
+
+    // 타자 추가
+    function addPlayer(teamKey) {
+        if (state[teamKey].length >= MAX_PLAYERS) return;
+        const prefix = teamKey === 'team1' ? '1팀 타자' : '2팀 타자';
+        state[teamKey].push(makePlayer(`${prefix} ${state[teamKey].length + 1}`, state.totalInnings));
+        renderTable(teamKey);
+        updatePlayerCounts();
+        calculateAll();
+        save();
+    }
+
+    // 타자 삭제
+    function removePlayer(teamKey) {
+        if (state[teamKey].length <= 1) return;
+        const target = state[teamKey][state[teamKey].length - 1];
+        const entered = target.innings.some((inn) => inn.some(ab => ab.result !== '' || ab.score === 'o'));
+        if (entered && !confirm(`${target.name}의 기록이 있습니다. 정말 삭제할까요?`)) return;
+
+        state[teamKey].pop();
+        renderTable(teamKey);
+        updatePlayerCounts();
+        calculateAll();
+        save();
+    }
+
+    // 경기 초기화
+    function resetMatch() {
+        if (!confirm('모든 기록을 지우고 새 경기를 시작할까요?\n이 작업은 되돌릴 수 없습니다.')) return;
+        state = createDefaultState();
+        renderAll();
+        save();
+    }
+
+    // ── 이벤트 바인딩 ──────────────────────────────────────
+    function bindEvents() {
+        document.getElementById('btn-swap-roles').addEventListener('click', swapRoles);
+        document.getElementById('team1-role-btn').addEventListener('click', swapRoles);
+        document.getElementById('team2-role-btn').addEventListener('click', swapRoles);
+
+        // 상단 및 중간 전광판의 이닝 드롭다운 동기화
+        document.querySelectorAll('.active-inning-select').forEach(selectEl => {
+            selectEl.addEventListener('change', (e) => {
+                state.activeInningKey = e.target.value;
+                document.querySelectorAll('.active-inning-select').forEach(other => {
+                    if (other !== e.target) other.value = state.activeInningKey;
+                });
+                const printEls = document.querySelectorAll('.active-inning-print');
+                printEls.forEach(p => {
+                    if (e.target.selectedOptions[0]) p.textContent = e.target.selectedOptions[0].textContent;
+                });
+                calculateAll();
+            });
+        });
+
+        document.getElementById('btn-add-inning').addEventListener('click', addInning);
+        document.getElementById('btn-remove-inning').addEventListener('click', removeInning);
+        document.getElementById('btn-print').addEventListener('click', () => window.print());
+        document.getElementById('btn-reset').addEventListener('click', resetMatch);
+
+        TEAM_KEYS.forEach((teamKey) => {
+            const nameInput = document.getElementById(`${teamKey}-name-input`);
+            nameInput.addEventListener('input', () => {
+                state[`${teamKey}Name`] = nameInput.value;
+                updateTeamNames();
+                save();
+            });
+        });
+
+        document.querySelectorAll('[data-add-player]').forEach((btn) => {
+            btn.addEventListener('click', () => addPlayer(btn.dataset.addPlayer));
+        });
+        document.querySelectorAll('[data-remove-player]').forEach((btn) => {
+            btn.addEventListener('click', () => removePlayer(btn.dataset.removePlayer));
+        });
+    }
+
+    function init() {
+        const saved = loadState();
+        if (saved) {
+            state = saved;
+        }
+        bindEvents();
+        renderAll();
+        if (saved) {
+            setSaveStatus('저장된 기록을 불러왔습니다');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
